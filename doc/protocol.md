@@ -194,4 +194,4 @@ V#: 00 00 valve is closed
 
 
 
-%1xOuOYDYAwDQAS3dAAUDANABLd0AAA==  -> actiavte humidity sensor
+%1xOuOYDYAwDQAS3dAAUDANABLd0AAA==  -> activate humidity sensor

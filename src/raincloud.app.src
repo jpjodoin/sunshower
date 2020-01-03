@@ -1,11 +1,12 @@
 {application, raincloud,
- [{description, "An OTP application"},
-  {vsn, "0.1.0"},
+ [{description, "A local backend for the Melnor Raincloud internet connected device"},
+  {vsn, git},
   {registered, []},
   {mod, { raincloud_app, []}},
   {applications,
    [kernel,
-    stdlib
+    stdlib,
+    cowboy
    ]},
   {env,[]},
   {modules, []},
