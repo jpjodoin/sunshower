@@ -9,7 +9,7 @@ get_status(Msg) ->
     DecodedMsg = decode(Msg),
     <<RfSerial:48/little, Day:8, 0:8, MinutesSinceMidnight:16/little, ValveSerial:16/little, ValveState:8, Battery:8, 0:8, ValveCommStatus:8, _/binary>> = DecodedMsg,
     {Valve1, Valve2, Valve3, Valve4} = valve_state(ValveState),
-    #status{serial = to_binary(RfSerial), 
+    #status{serial = string:lowercase(to_binary(RfSerial)), 
                          valve_id = to_binary(ValveSerial),
                          day = day_to_atom(Day),
                          time = minutes_to_time(MinutesSinceMidnight),

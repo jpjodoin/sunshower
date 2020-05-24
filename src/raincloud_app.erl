@@ -15,6 +15,7 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
+    raincloud_store:start(),
     raincloud_handler:start(),
     raincloud_sup:start_link().
 

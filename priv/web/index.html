@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      <title>Project Sunshine</title>
+      <link rel="stylesheet" href="css/style.css">
+      <script>
+         async function getStatus()
+         {
+            const response = await fetch('/api/status');
+            const data = await response.json(); //extract JSON from the http response
+            UnitStatus = document.getElementById('unit_status');
+            ValveStatus = document.getElementById('valve_status');
+            ValveBattery = document.getElementById('valve_battery');
+            UnitStatus.innerHTML = "Unit " + data.unit_status;
+            if(data.unit_status == "online")
+            {
+               ValveStatus.innerHTML = "Valve " + data.valve_status;
+               ValveBattery.innerHTML = "Battery: " + data.valve_battery + "%";
+               set_button_status(1, data.valve1_status);
+               set_button_status(2, data.valve2_status);
+               set_button_status(3, data.valve3_status);
+               set_button_status(4, data.valve4_status);
+            }
+            else
+            {
+               ValveStatus.innerHTML = "Valve offline";
+               ValveBattery.style.display = "none";
+            }
+            console.log(data);
+         }
+
+         function set_button_status(ValveId, Value)
+         {
+            if(Value == "off")
+            {
+               document.getElementById('valve'+ValveId).checked=false;
+            }
+            else
+            {
+               document.getElementById('valve'+ValveId).checked=true;
+            }
+         }
+
+         function onValveToggle(ValveId)
+         {
+              Status = document.getElementById('valve'+ValveId).checked;
+              Duration = document.getElementById('valve'+ValveId+'-duration').value;
+              if(Duration == "")
+              {
+                Duration = 15;
+              }
+              if(Status == false)
+              {
+                Duration = 0; // This is off
+              }
+
+              console.log(ValveId + " Status: " + Status + " Duration: " + Duration);
+              Url="/api/control?valve="+ValveId+"&duration="+Duration;
+              get(Url);
+         }
+
+         function get(url) {
+            // Return a new promise.
+            return new Promise(function(resolve, reject) {
+                // Do the usual XHR stuff
+                var req = new XMLHttpRequest();
+                req.open('GET', url);
+
+                req.onload = function() {
+                // This is called even on 404 etc
+                // so check the status
+                if (req.status == 200) {
+                    // Resolve the promise with the response text
+                    resolve(req.response);
+                }
+                else {
+                    // Otherwise reject with the status text
+                    // which will hopefully be a meaningful error
+                    reject(Error(req.statusText));
+                }
+                };
+
+                // Handle network errors
+                req.onerror = function() {
+                reject(Error("Network Error"));
+                };
+
+                // Make the request
+                req.send();
+            });
+         }
+      </script>
+   </head>
+   
+
+   <body onload="getStatus()">
+      <h1>
+         <center>Sunshine</center>
+      </h1>
+      <div class="system_status">
+         <div id="unit_status"></div><div id="valve_status"></div><div id="valve_battery"></div><!--div id="host_time"></div><div id="device_time"></div-->
+      </div>
+
+      <div class="valves">
+         <div class="valve">
+            <div class="onoffswitch">
+               <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="valve1" tabindex="0" onclick="onValveToggle(1)" >
+               <label class="onoffswitch-label" for="valve1"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label>
+            </div>
+            <div class="valve-label">Valve 1</div>
+            <div class="number-units">
+               <input type="number" id="valve1-duration" class="valve-duration"  placeholder="15" min="0"/>
+               <div class="units">min.</div>
+            </div>
+         </div>
+         <div class="valve">
+            <div class="onoffswitch">
+               <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="valve2" tabindex="0"  onclick="onValveToggle(2)">
+               <label class="onoffswitch-label" for="valve2">
+               <span class="onoffswitch-inner"></span>
+               <span class="onoffswitch-switch"></span>
+               </label>
+            </div>
+            <div class="valve-label">Valve 2</div>
+            <div class="number-units">
+               <input type="number" id="valve2-duration" class="valve-duration"  placeholder="15" min="0"/>
+               <div class="units">min.</div>
+            </div>
+         </div>
+         <div class="valve">
+            <div class="onoffswitch">
+               <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="valve3" tabindex="0"  onclick="onValveToggle(3)">
+               <label class="onoffswitch-label" for="valve3">
+               <span class="onoffswitch-inner"></span>
+               <span class="onoffswitch-switch"></span>
+               </label>
+            </div>
+            <div class="valve-label">Valve 3</div>
+            <div class="number-units">
+               <input type="number" id="valve3-duration" class="valve-duration"  placeholder="15" min="0"/>
+               <div class="units">min.</div>
+            </div>
+         </div>
+         <div class="valve">
+            <div class="onoffswitch">
+               <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="valve4" tabindex="0"  onclick="onValveToggle(4)">
+               <label class="onoffswitch-label" for="valve4">
+               <span class="onoffswitch-inner"></span>
+               <span class="onoffswitch-switch"></span>
+               </label>
+            </div>
+            <div class="valve-label">Valve 4</div>
+            <div class="number-units">
+               <input type="number" id="valve4-duration" class="valve-duration"  placeholder="15" min="0"/>
+               <div class="units">min.</div>
+            </div>
+         </div>
+      </div>
+   </body>
+</html>

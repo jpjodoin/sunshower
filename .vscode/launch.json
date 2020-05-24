@@ -4,11 +4,14 @@
     // Pour plus d'informations, visitez : https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        
         {
             "name": "Launch erlang",
             "type": "erlang",
             "request": "launch",
-            "cwd": "${workspaceRoot}"
+            "cwd": "${workspaceRoot}",
+            "arguments": "-config config/sys.config",
+            "preLaunchTask": "rebar3 compile"
         }
     ]
 }
