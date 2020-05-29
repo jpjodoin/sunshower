@@ -1,0 +1,9 @@
+[
+ {kernel, [
+  {logger_level, debug}
+ ]},
+ {raincloud, [
+        {default_deviceid, <<"${MELNOR_DEVICEID}">>}
+    ]
+}
+].

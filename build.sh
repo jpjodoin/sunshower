@@ -1,0 +1,1 @@
+docker build -t jpjodoin/raincloud:latest .

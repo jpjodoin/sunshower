@@ -6,13 +6,16 @@
   {applications,
    [kernel,
     stdlib,
+    sasl,
+    inets,
     ranch,
-    cowboy
+    cowboy,
+    jsx
    ]},
   {env,[]},
   {modules, []},
 
   {maintainers, []},
-  {licenses, ["Apache 2.0"]},
+  {licenses, ["MIT License"]},
   {links, []}
  ]}.
