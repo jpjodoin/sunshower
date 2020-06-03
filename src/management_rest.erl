@@ -49,11 +49,15 @@ handle_req(<<"GET">>, <<"/api/status">>, Req) ->
         _ ->
             raincloud_config:default_deviceid()
     end,
-    case raincloud_unit:get_status(DeviceId) of
+    case raincloud_unit:get_state(DeviceId) of
         fail ->
             {200, #{<<"content-type">> => <<"application/json">>}, jsx:encode(#{<<"unit_status">>=> offline}),Req};
-        #status{comm_link = CommLink, time = {Hours, Minutes}, day = Day, battery = Battery, valve1= V1, valve2 = V2, valve3 = V3, valve4 = V4} ->
+        #unit_state{status = #status{comm_link = CommLink, time = {Hours, Minutes}, day = Day, battery = Battery, valve1= V1, valve2 = V2, valve3 = V3, valve4 = V4},
+            valve1_endtime = V1Endtime, valve2_endtime = V2Endtime, valve3_endtime = V3Endtime, valve4_endtime = V4Endtime} ->
+
+
             Body = jsx:encode([
+                {<<"host_time">>, erlang:system_time(millisecond)},
                 {<<"unit_status">>, online},
                 {<<"valve_status">>, CommLink},
                 {<<"valve_hours">>, Hours},
@@ -63,7 +67,11 @@ handle_req(<<"GET">>, <<"/api/status">>, Req) ->
                 {<<"valve1_status">>, V1},
                 {<<"valve2_status">>, V2},
                 {<<"valve3_status">>, V3},
-                {<<"valve4_status">>, V4}
+                {<<"valve4_status">>, V4},
+                {<<"valve1_endtime">>, V1Endtime},
+                {<<"valve2_endtime">>, V2Endtime},
+                {<<"valve3_endtime">>, V3Endtime},
+                {<<"valve4_endtime">>, V4Endtime}
             ]),
             {200, #{<<"content-type">> => <<"application/json">>}, Body,Req}
     end;

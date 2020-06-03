@@ -36,14 +36,14 @@ init(Req, Opts) ->
     ?LOG_INFO("~p ~p from ~p", [Method, Path, Ip]),
     case handle_req(Method, Path, Req) of
         upgrade ->
-            {cowboy_websocket, Req, Opts, #{idle_timeout => 200000}}; %TODO: 200 seconds timeout for websocket, is it appropriate ? Default is 60
+            {cowboy_websocket, Req, #{ idle_timeout => 120000}};
         {Code, Req2} ->
             Reply = cowboy_req:reply(Code, Req2),
 	        {ok, Reply, Opts};
         _ ->
             %TODO: forward to real service on ws.pusherapp.com
             ?LOG_WARNING("Received request for other service, ignoring...", []),
-            Reply = cowboy_req:reply(503, Req),
+            Reply = cowboy_req:reply(501, Req),
 	        {ok, Reply, Opts}
     end.
 
@@ -78,7 +78,7 @@ handle_message(Hash, <<"ascii--hashkeyevnt--ack--null">>, Req) ->
         [{_, ChannelId}] ->
             set_automatic_schedule(ChannelId,0),
             {200, Req}
-                     
+
     end;
 
 handle_message(Hash, <<"ascii--timestampevnt--ack--null">>, Req) ->
@@ -90,7 +90,7 @@ handle_message(Hash, <<"ascii--timestampevnt--ack--null">>, Req) ->
         [{_, ChannelId}] ->
             get_hardware_revision(ChannelId),
             {200, Req}
-                     
+
     end;
 
 handle_message(_Hash, <<"ascii--manualctrlevnt--ack--null">>, Req) ->
@@ -106,7 +106,7 @@ handle_message(Hash, <<"ascii--Day6scheduleevnt--ack--null">>, Req) ->
         [{_, ChannelId}] ->
             sync_timestamp(ChannelId),
             {200, Req}
-                     
+
      end;
 
 handle_message(Hash, <<"ascii--Day", DayNb:8, "scheduleevnt--ack--null">>, Req) ->
@@ -119,7 +119,7 @@ handle_message(Hash, <<"ascii--Day", DayNb:8, "scheduleevnt--ack--null">>, Req) 
         [{_, ChannelId}] ->
             set_automatic_schedule(ChannelId,DayNb2+1),
             {200, Req}
-                     
+
     end;
 
 handle_message(Hash, <<"ascii--revisions--", RevisionName/binary>>, Req) ->
@@ -131,9 +131,7 @@ handle_message(Hash, <<"ascii--revisions--", RevisionName/binary>>, Req) ->
             ?LOG_INFO("Hardware revision is  ~p", [RevisionName]),
             raincloud_unit:send_command(ChannelId, set_hw_rev, RevisionName),
             {200, Req}
-                     
      end;
-    
 
 handle_message(_Hash, <<"ascii", _/binary>> = Message, Req) ->
     ?LOG_INFO("Received unknown event ~p", [Message]),
@@ -166,10 +164,10 @@ handle_message(Hash, Message, Req) ->
 
 websocket_init(State) ->
     ?LOG_INFO("[WS] Init ~p", [self()]),
-    % When using pusher:connection_established, the client doesn't call the next HTTP method, so we just skip it as it will work very well without it.
-    %  Body = jsx:encode([{<<"event">>, <<"pusher:connection_established">>}, {<<"data">>, <<"{\"socket_id\":\"242216.674885\"}">>}]),
-    %  ?LOG_INFO("Connection established: ~p", [Body]),            
-    %  {reply, {text, Body}, State}.
+    %When using pusher:connection_established, the client doesn't call the next HTTP method, so we just skip it as it will work very well without it.
+    %Body = jsx:encode([{<<"event">>, <<"pusher:connection_established">>}, {<<"data">>, <<"{\"socket_id\":\"242216.674885\"}">>}]),
+    %?LOG_INFO("Connection established: ~p", [Body]),
+    %{reply, {text, Body}, State}.
     {ok, State}.
 
 websocket_handle({text, Body}, State) ->
@@ -185,7 +183,7 @@ websocket_handle({text, Body}, State) ->
             Reply = [{<<"event">>, <<"pusher_internal:subscription_succeeded">>}, {<<"data">>, <<"{}">>}, {<<"channel">>, Channel}],
             ReplyJson = jsx:encode(Reply),
             ?LOG_INFO("[WS] => ~p", [ReplyJson]),
-            
+
             UnitPid = case raincloud_store:get_unit(Channel) of
                 [] ->
                     {ok, Pid} = raincloud_unit:start_link(Channel),
@@ -196,7 +194,7 @@ websocket_handle({text, Body}, State) ->
             end,
             raincloud_unit:send_command(UnitPid, set_websocket, self()),
             ?LOG_INFO("Registering ~p to ~p", [self(), Channel]),
-            {reply, {text, ReplyJson}, State}; 
+            {reply, {text, ReplyJson}, State};
         _ ->
             ?LOG_ERROR("Unknown event ~p, ignoring... ", [Event]),
             {ok, State}
@@ -207,10 +205,14 @@ websocket_handle(Frame, State) ->
     ?LOG_INFO("[WS] Handle ~p", [Frame]),
     {ok, State}.
 
-websocket_info(Info, State) ->
-    ?LOG_INFO("[WS] Info ~p", [Info]),
-    {reply, {text, Info}, State}.
-   
+websocket_info(ping, State) ->
+    ?LOG_INFO("[WS] ping", [self()]),
+   {reply, ping, State};
+
+websocket_info(Message, State) ->
+    ?LOG_INFO("[WS] Message ~p", [Message]),
+    {reply, {text, Message}, State}.
+
 terminate(Reason, #{host:=<<"ws.pusherapp.com">>}, _State) ->
     ?LOG_INFO("[WS] Terminate ~p with reason ~p", [self(), Reason]),
     ok;
@@ -240,7 +242,7 @@ sync_timestamp(Channel) ->
     ErlDayOfWeek = calendar:day_of_the_week(Date),
     DayOfWeek = erl_day_of_week_to_melnor(ErlDayOfWeek),
     CommandData = command:encode(timestamp, {Minutes, Hours, DayOfWeek}),
-    Message = jsx:encode([{<<"event">>, <<"timestamp">>}, {<<"data">>, CommandData}, {<<"channel">>, Channel}]), %TODO: move to commands 
+    Message = jsx:encode([{<<"event">>, <<"timestamp">>}, {<<"data">>, CommandData}, {<<"channel">>, Channel}]), %TODO: move to commands
     raincloud_unit:send_command(Channel, send_ws, Message).
 
 % Erlang start on Monday = 1 while Melnor start with Sunday = 0

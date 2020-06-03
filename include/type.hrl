@@ -11,3 +11,16 @@
     valve4 :: manual|automatic|off
 }
 ).
+
+-record(unit_state, {
+   status :: #status{},
+   last_communication :: non_neg_integer(),
+   hardware_revision :: binary(),
+   valve1_endtime :: non_neg_integer()|undefined,
+   valve2_endtime :: non_neg_integer()|undefined,
+   valve3_endtime :: non_neg_integer()|undefined,
+   valve4_endtime :: non_neg_integer()|undefined,
+ %  hash :: binary(),
+   ws,
+   ws_keepalive_timer
+}).
