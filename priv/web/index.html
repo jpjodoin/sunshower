@@ -2,8 +2,9 @@
 <html lang="en">
    <head>
       <meta charset="utf-8">
-      <title>Project Sunshine</title>
+      <title>Local Melnor Raincloud</title>
       <link rel="stylesheet" href="css/style.css">
+      <link rel="stylesheet" href="css/pure-min.css">
       <script>
          async function getStatus()
          {
@@ -16,11 +17,12 @@
             if(data.unit_status == "online")
             {
                ValveStatus.innerHTML = "Valve " + data.valve_status;
-               ValveBattery.innerHTML = "Battery: " + data.valve_battery + "%";
-               set_button_status(1, data.valve1_status);
-               set_button_status(2, data.valve2_status);
-               set_button_status(3, data.valve3_status);
-               set_button_status(4, data.valve4_status);
+               ValveBattery.innerHTML = "Battery " + data.valve_battery + "%";
+
+               set_button_time_status(1, data.valve1_status, data.valve1_endtime, data.host_time);
+               set_button_time_status(2, data.valve2_status, data.valve2_endtime, data.host_time);
+               set_button_time_status(3, data.valve3_status, data.valve3_endtime, data.host_time);
+               set_button_time_status(4, data.valve4_status, data.valve4_endtime, data.host_time);
             }
             else
             {
@@ -30,15 +32,30 @@
             console.log(data);
          }
 
-         function set_button_status(ValveId, Value)
+         function set_button_time_status(ValveId, Value, EndTime, HostTime)
          {
+            ValveCheckbox = document.getElementById('valve'+ValveId);
+            DurationField = document.getElementById('valve'+ValveId+'-duration');
             if(Value == "off")
             {
-               document.getElementById('valve'+ValveId).checked=false;
+               ValveCheckbox.checked = false;
+               DurationField.disabled = false;
             }
             else
             {
-               document.getElementById('valve'+ValveId).checked=true;
+               ValveCheckbox.checked=true;
+               DeltaMs = EndTime-HostTime;
+               DeltaMin = Math.ceil(DeltaMs/60000);
+               DurationField.value = DeltaMin;
+               DurationField.disabled = true;
+               if(Value == "manual")
+               {
+                  ValveCheckbox.disabled = true; // This can be resolved once we fix it on the backend.
+               }
+               else //auto
+               {
+                  ValveCheckbox.disabled = false;
+               }
             }
          }
 
@@ -92,23 +109,19 @@
          }
       </script>
    </head>
-   
+
 
    <body onload="getStatus()">
       <h1>
-         <center>Sunshine</center>
+         <center>Local Melnor Raincloud</center>
       </h1>
-      <div class="system_status">
-         <div id="unit_status"></div><div id="valve_status"></div><div id="valve_battery"></div><!--div id="host_time"></div><div id="device_time"></div-->
-      </div>
-
-      <div class="valves">
+       <div class="valves">
          <div class="valve">
             <div class="onoffswitch">
                <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="valve1" tabindex="0" onclick="onValveToggle(1)" >
                <label class="onoffswitch-label" for="valve1"><span class="onoffswitch-inner"></span><span class="onoffswitch-switch"></span></label>
             </div>
-            <div class="valve-label">Valve 1</div>
+            <div class="valve-label">Valve 1 </div>
             <div class="number-units">
                <input type="number" id="valve1-duration" class="valve-duration"  placeholder="15" min="0"/>
                <div class="units">min.</div>
@@ -122,7 +135,7 @@
                <span class="onoffswitch-switch"></span>
                </label>
             </div>
-            <div class="valve-label">Valve 2</div>
+            <div class="valve-label">Valve 2 </div>
             <div class="number-units">
                <input type="number" id="valve2-duration" class="valve-duration"  placeholder="15" min="0"/>
                <div class="units">min.</div>
@@ -136,7 +149,7 @@
                <span class="onoffswitch-switch"></span>
                </label>
             </div>
-            <div class="valve-label">Valve 3</div>
+            <div class="valve-label">Valve 3 </div>
             <div class="number-units">
                <input type="number" id="valve3-duration" class="valve-duration"  placeholder="15" min="0"/>
                <div class="units">min.</div>
@@ -150,12 +163,20 @@
                <span class="onoffswitch-switch"></span>
                </label>
             </div>
-            <div class="valve-label">Valve 4</div>
+            <div class="valve-label">Valve 4 </div>
             <div class="number-units">
                <input type="number" id="valve4-duration" class="valve-duration"  placeholder="15" min="0"/>
                <div class="units">min.</div>
             </div>
          </div>
       </div>
+      <br>
+      <h2><center>System status</center></h2>
+      <div class="system_status">
+         <div id="unit_status"></div>
+         <div id="valve_status"></div>
+         <div id="valve_battery"></div>
+      </div>
+
    </body>
 </html>

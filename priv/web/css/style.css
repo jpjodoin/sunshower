@@ -1,28 +1,27 @@
 .system_status{
-    display: inline-block;
+    display: table;
     justify-content: center;
-    align-items: center;
     display: grid;
-    grid-auto-flow: column;
-    grid-gap: 40px;
+    grid-auto-flow: row;
+    grid-gap: 10px;
     padding-bottom: 20px;
 }
 
 .valves {
-    display: inline-block;
+    display: table;
      justify-content: center;
      align-items: center;
      display: grid;
      grid-auto-flow: rows;
      grid-gap: 40px;
  }
- 
+
  .valve {
      display: inline-grid;
      grid-auto-flow: column;
-     grid-template-columns: 90px auto 60px;
+     grid-template-columns: 90px 140px 60px;
  }
- 
+
  .valve-label {
      font-size: 30px;
      text-align: left;
@@ -31,20 +30,20 @@
      border-bottom-left-radius: 15px;
      border-bottom-right-radius: 15px;
  }
- 
+
  .number-units{
      display: inline-grid;
      grid-auto-flow: column;
      grid-template-columns: auto 40px;
  }
- 
+
  .units {
      display: flex;
      padding:5px;
      align-items: center;
  }
- 
- 
+
+
  .valve-duration {
      width: 50px;
      text-align: right;
@@ -89,11 +88,11 @@
      position: absolute; top: 0; bottom: 0;
      right: 38px;
      border: 2px solid #999999; border-radius: 20px;
-     transition: all 0.3s ease-in 0s; 
+     transition: all 0.3s ease-in 0s;
  }
  .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
      margin-left: 0;
  }
  .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
-     right: 0px; 
+     right: 0px;
  }
