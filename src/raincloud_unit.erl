@@ -47,7 +47,7 @@ handle_call({toggle_valve, {ValveIdx, DurationMin}}, _From, #unit_state{status =
          {reply, error, State};
       Message ->
          Ws ! Message,
-         % TODO: Potential race condition here if we receive a status before the toggle change as this will be erased by the get_end_time method
+         % TODO: Race condition here if we receive a status before the toggle change as this will be erased by the get_end_time method
          EndTime = erlang:system_time(millisecond) + DurationMin*60000,
          State2 = case ValveIdx of
             1 ->

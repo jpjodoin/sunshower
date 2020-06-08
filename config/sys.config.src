@@ -1,5 +1,10 @@
 [
  {kernel, [
+    {logger, [
+        {handler, default, logger_std_h,
+          #{ formatter => {logger_formatter, #{ template => [time," ", file,":",line," [",level,"](", pid, ") ",msg,"\n"]}}}
+        }
+    ]},
   {logger_level, debug}
  ]},
  {raincloud, [

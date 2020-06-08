@@ -7,13 +7,8 @@
     websocket_init/1, websocket_handle/2,
     websocket_info/2
 ]).
-
-%GET /submit/?idhash=0000000000&message=1xOuOYDYAQCgAi3dAP8AAgAAAAAAAg== HTTP/1.1 <-- Generate token if doesn't exist, else reuse existing
-
 start() ->
-    ?LOG_INFO("Test", []),
     Dispatch = cowboy_router:compile([
-
         {'_', [
             {"/api/[...]", management_rest, []},
             {"/submit/[...]", raincloud_handler, []},
@@ -53,7 +48,7 @@ handle_req(<<"GET">>, <<"/app/", _/binary>>, Req) ->
     case Origin of
         <<"MelnorSprinklerSystem">> ->
 	        ?LOG_INFO("Received request for melnor app, will upgrade to WS", []),
-             upgrade;
+            upgrade;
         _ ->
             forward
     end;
@@ -138,7 +133,7 @@ handle_message(_Hash, <<"ascii", _/binary>> = Message, Req) ->
     {200, Req};
 
 handle_message(<<"0000000000">>, Message, Req) ->
-    NewHash =  base64:encode(crypto:strong_rand_bytes(10)), %TODO: Store this in state and match on ack
+    NewHash =  base64:encode(crypto:strong_rand_bytes(10)),
     #status{ serial=ChannelId } = UnitStatus = state_decoder:get_status(Message),
     raincloud_store:add_hash_deviceid_mapping(NewHash, ChannelId),
     raincloud_unit:send_command(ChannelId, update_status, UnitStatus),
@@ -165,10 +160,10 @@ handle_message(Hash, Message, Req) ->
 websocket_init(State) ->
     ?LOG_INFO("[WS] Init ~p", [self()]),
     %When using pusher:connection_established, the client doesn't call the next HTTP method, so we just skip it as it will work very well without it.
-    %Body = jsx:encode([{<<"event">>, <<"pusher:connection_established">>}, {<<"data">>, <<"{\"socket_id\":\"242216.674885\"}">>}]),
-    %?LOG_INFO("Connection established: ~p", [Body]),
-    %{reply, {text, Body}, State}.
-    {ok, State}.
+    %TODO: make this configurable as removing this allows old unit that were not updated with the latest firmware to work.
+    Body = jsx:encode([{<<"event">>, <<"pusher:connection_established">>}, {<<"data">>, <<"{\"socket_id\":\"123456.789012\"}">>}]),
+    ?LOG_INFO("Connection established: ~p", [Body]),
+    {reply, {text, Body}, State}.
 
 websocket_handle({text, Body}, State) ->
     ?LOG_INFO("[WS] <= ~p", [Body]),
@@ -206,7 +201,7 @@ websocket_handle(Frame, State) ->
     {ok, State}.
 
 websocket_info(ping, State) ->
-    ?LOG_INFO("[WS] ping", [self()]),
+    ?LOG_INFO("[WS] ping ~p", [self()]),
    {reply, ping, State};
 
 websocket_info(Message, State) ->
@@ -217,10 +212,8 @@ terminate(Reason, #{host:=<<"ws.pusherapp.com">>}, _State) ->
     ?LOG_INFO("[WS] Terminate ~p with reason ~p", [self(), Reason]),
     ok;
 
-terminate(Reason,Req, State) ->
+terminate(_Reason,_Req, _State) ->
     ok.
-%TODO: Implement sync timestamp command at interval
-%TODO: Implement schedule
 
 get_hardware_revision(Channel) ->
     ?LOG_INFO("Sending hardware revision request", []),

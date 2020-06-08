@@ -18,7 +18,6 @@ init(Req, Opts) ->
             Reply = cowboy_req:reply(Code, Headers, Message, Req2),
 	        {ok, Reply, Opts};
         _ ->
-            %TODO: forward to real service on ws.pusherapp.com
             ?LOG_WARNING("Received request for other service, ignoring...", []),
             Reply = cowboy_req:reply(503, Req),
 	        {ok, Reply, Opts}
