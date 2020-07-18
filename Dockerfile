@@ -8,7 +8,10 @@ WORKDIR /usr/src/app/
 COPY rebar.config rebar.lock /usr/src/app/
 RUN rebar3 compile
 # Copy the source and build release
-COPY . /usr/src/app/
+COPY config config
+COPY src src
+COPY include include
+COPY priv priv
 RUN rebar3 as prod tar
 
 RUN mkdir -p /opt/rel
