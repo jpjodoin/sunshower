@@ -1,4 +1,4 @@
-# Project Sun Shower
+# Project Sunshower
 
 Run your own local server for the Melnor RainCloud Wifi irrigation valve instead of using the cloud. This allows you to use a local REST API and your service will work even if the Cloud service goes down.
 
@@ -27,6 +27,12 @@ Once the service is up, you can access the UI on port 80. From there, you can se
 
 ![Web UI](doc/webui.png)
 
+## Running natively (without docker)
+To run this program, you will need
+1) Erlang 22
+2) Rebar3
+3) You should define the environment variable MELNOR_DEVICEID to your unit ID
+4) Run the start.sh script (or run the command `sudo rebar3 shell`). Sudo is required here because by default, only root can bind on port 80.
 
 
 # REST API
