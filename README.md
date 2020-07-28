@@ -73,7 +73,7 @@ On success, you will receive a 200 OK with an empty body
 * [ ] Support closing valve that was started manually
 * [ ] Support launching multiple valve simultaneously
 * [ ] Add native scheduling rules
-* [ ] Add custom labels for valves in Web UI
+* [x] Add custom labels for valves in Web UI
 * [ ] Clean protocol documentation
 * [ ] Add timezone support in docker containers (currently UTC)
 * [ ] Clean code/add more tests

@@ -19,7 +19,7 @@
  .valve {
      display: inline-grid;
      grid-auto-flow: column;
-     grid-template-columns: 90px 140px 60px;
+    grid-template-columns: auto auto 60px;
  }
 
  .valve-label {
@@ -42,7 +42,6 @@
      padding:5px;
      align-items: center;
  }
-
 
  .valve-duration {
      width: 50px;

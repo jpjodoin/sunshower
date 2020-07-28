@@ -8,6 +8,11 @@ services:
     restart: always
     environment:
       - MELNOR_DEVICEID=D01234AB01D0 # TODO: Replace me
+      - VALVE1_LABEL=Valve 1
+      - VALVE2_LABEL=Valve 2
+      - VALVE3_LABEL=Valve 3
+      - VALVE4_LABEL=Valve 4
+
     #volumes:
     #  - TODO Logs
     #read_only: true
