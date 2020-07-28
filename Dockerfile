@@ -1,6 +1,6 @@
 FROM erlang:22.3.4.1-alpine as base
 FROM base as builder
-RUN apk add --no-cache --update  git
+RUN apk add --no-cache --update git
 
 WORKDIR /usr/src/app/
 
